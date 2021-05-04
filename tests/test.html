@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<title>Rusty Inc. Org Chart WordPress Plugin JavaScript Tests</title>
+		<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.7.1.css">
+	</head>
+	<body>
+		<div id="qunit"></div>
+		<div id="qunit-fixture"></div>
+		<script src="https://code.jquery.com/qunit/qunit-2.7.1.js"></script>
+		<script type="module">
+			import { subscribe, updateTree, updateSecretURL, getTree } from '../framework.js';
+			import { save, addNewTeamItem ,askUserForTeamDetails} from '../ui.js';
+			const q = QUnit;
+			q.module( 'Framework' );
+			q.test( 'updateTree does not update the tree if it is given null', assert => {
+				const tree = { x: 100 };
+				updateTree( tree );
+				tree.x = 200;
+				updateTree( null );
+				assert.strictEqual( getTree().x, 200, 'State object was modified without changing the reference' );
+			} );
+			q.test( 'updateTree and updateSecretURL calls all subscribed callbacks', assert => {
+				assert.expect( 6 );
+				subscribe( () => assert.ok( true, 'subscribed callback 0 called' ) );
+				subscribe( () => assert.ok( true, 'subscribed callback 1 called' ) );
+				updateTree();
+				updateTree( { id: 1 } );
+				updateSecretURL( 'http://hi:)' );
+			} );
+			q.module( 'Ui' );
+			q.test( 'askUserForTeamDetails function does not work when team name and emoji inputs are empty', assert => {
+				alert('please enter EMPTY values for team name and emoji to test askUserForTeamDetails');
+				var teamDetails = askUserForTeamDetails(1);
+				assert.deepEqual(teamDetails, false , 'team name and emoji cannot be empty');
+			} );
+			q.test( 'addNewTeamItem function works only when team name and emoji inputs are provided', assert => {
+				alert('please enter NON EMPTY team name and emoji values to test addNewTeamItem');
+				var saveArrayReady = addNewTeamItem(1);
+				assert.strictEqual(saveArrayReady, true , 'team is ready to be saved');
+			} );
+			q.test( 'save function sends an ajax request only when there are added teams to be saved', assert => {
+				var saveItemsExist = save([]);
+				assert.strictEqual(saveItemsExist, false , 'no added teams to be saved exist');
+			} );
+
+		</script>
+	</body>
+</html>
